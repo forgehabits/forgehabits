@@ -11,10 +11,19 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="FORGE: Habits">
 <meta name="twitter:description" content="Streaks, leagues, battles. The habit tracker that keeps you coming back. Coming soon to iOS.">
+<meta property="og:image" content="assets/og.png">
 <link rel="canonical" href="https://forgehabits.app">
+<link rel="icon" type="image/png" href="assets/logo-mark_dark.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  (function() {
+    var saved = localStorage.getItem('forge-theme');
+    var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
 <style>
   :root {
     --bg: #0A0A0A;
@@ -26,6 +35,24 @@
     --muted-2: #333333;
     --border: #1A1A1A;
     --border-2: #242424;
+    --nav-bg: rgba(10,10,10,0.92);
+    --nav-bg-scrolled: rgba(10,10,10,0.98);
+    --mobile-menu-bg: rgba(10,10,10,0.97);
+  }
+
+  [data-theme="light"] {
+    --bg: #F7F5F1;
+    --bg-2: #EEEAE4;
+    --bg-3: #E5E1DA;
+    --red: #C8000A;
+    --white: #111111;
+    --muted: #777777;
+    --muted-2: #BBBBBB;
+    --border: #DEDAD3;
+    --border-2: #D0CBC3;
+    --nav-bg: rgba(247,245,241,0.92);
+    --nav-bg-scrolled: rgba(247,245,241,0.98);
+    --mobile-menu-bg: rgba(247,245,241,0.97);
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -50,9 +77,15 @@
     justify-content: space-between;
     padding: 0 56px;
     height: 60px;
-    background: rgba(10,10,10,0.92);
+    background: var(--nav-bg);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
+    transition: background 0.3s ease, backdrop-filter 0.3s ease;
+  }
+
+  nav.scrolled {
+    background: var(--nav-bg-scrolled);
+    backdrop-filter: blur(30px);
   }
 
   .nav-logo {
@@ -105,6 +138,30 @@
   }
 
   .nav-cta:hover { border-color: #444; background: var(--bg-2); }
+  .nav-cta:active { transform: scale(0.97); }
+
+  .btn-red:active, .price-btn:active, .store-badge:active, .btn-ghost:active { transform: scale(0.97); }
+
+  .theme-toggle {
+    background: none;
+    border: 1px solid var(--border-2);
+    color: var(--muted);
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    flex-shrink: 0;
+  }
+  .theme-toggle:hover { color: var(--white); border-color: var(--border-2); background: var(--bg-2); }
+  .theme-toggle svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .icon-sun { display: none; }
+  .icon-moon { display: block; }
+  [data-theme="light"] .icon-sun { display: block; }
+  [data-theme="light"] .icon-moon { display: none; }
 
   /* HERO */
   .hero {
@@ -115,6 +172,48 @@
     justify-content: center;
     text-align: center;
     padding: 100px 48px 60px;
+  }
+
+  .hero-logo-wrap {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+
+  .hero-logo-mark {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+    animation: logo-breathe 4s ease-in-out infinite;
+    content: url('assets/logo-mark.png');
+  }
+
+  [data-theme="light"] .hero-logo-mark {
+    content: url('assets/logo-mark_dark.png');
+  }
+
+  @keyframes logo-breathe {
+    0%, 100% { filter: drop-shadow(0 0 0px rgba(200,0,10,0)); }
+    50%       { filter: drop-shadow(0 0 18px rgba(200,0,10,0.35)); }
+  }
+
+  .tally-wrap {
+    background: transparent;
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  [data-theme="light"] .tally-wrap {
+    background: #1a1a1a;
+    padding: 8px 24px 0;
   }
 
   .hero-pill {
@@ -157,6 +256,12 @@
   .hero-headline em {
     font-style: italic;
     color: var(--red);
+    background: linear-gradient(90deg, #C8000A, #FF4444, #C8000A);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 4s ease-in-out infinite;
   }
 
   .hero-sub {
@@ -200,7 +305,54 @@
 
   .btn-ghost:hover { color: var(--white); }
 
-
+  /* HOW IT WORKS */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: 1fr 56px 1fr 56px 1fr;
+    align-items: stretch;
+  }
+  .step-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 32px;
+  }
+  .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--red);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 20px;
+  }
+  .step-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: -0.3px;
+    margin-bottom: 10px;
+    color: var(--white);
+  }
+  .step-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .step-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-connector svg {
+    width: 18px; height: 18px;
+    stroke: var(--muted-2);
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
 
   /* SECTIONS */
   .section {
@@ -238,6 +390,17 @@
   .serif-title em {
     font-style: italic;
     color: var(--red);
+    background: linear-gradient(90deg, #C8000A, #FF4444, #C8000A);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 4s ease-in-out infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
   }
 
   .body-desc {
@@ -254,6 +417,26 @@
     border: none;
     border-top: 1px solid var(--border);
     margin: 0 56px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  hr::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 1px;
+    background: var(--red);
+    animation: hr-draw 1s ease-out forwards;
+  }
+
+  @keyframes hr-draw {
+    to {
+      left: 0;
+      opacity: 0.3;
+    }
   }
 
   /* FEATURE GRID */
@@ -270,13 +453,17 @@
     padding: 32px 28px;
     border-right: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.3s, box-shadow 0.3s;
     position: relative;
   }
 
   .feat-cell:nth-child(3n) { border-right: none; }
   .feat-cell:nth-child(n+4) { border-bottom: none; }
-  .feat-cell:hover { background: var(--bg-2); }
+  .feat-cell:hover { 
+    background: var(--bg-2); 
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
 
   .feat-icon {
     width: 32px; height: 32px;
@@ -413,11 +600,22 @@
     border-radius: 16px;
     padding: 32px;
     position: relative;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .price-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
   }
 
   .price-card.featured {
     border-color: var(--red);
     background: #0F0000;
+  }
+  [data-theme="light"] .price-card.featured {
+    background: rgba(200, 0, 10, 0.06);
   }
 
   .price-badge {
@@ -464,6 +662,8 @@
     border-top: 1px solid var(--border);
     margin: 0 0 18px;
   }
+  .price-divider-featured { border-top-color: rgba(200,0,10,0.25); }
+  [data-theme="light"] .price-divider-featured { border-top-color: rgba(200,0,10,0.2); }
 
   .price-features {
     list-style: none;
@@ -478,7 +678,7 @@
     align-items: center;
     gap: 8px;
     font-size: 13px;
-    color: #AAAAAA;
+    color: var(--muted);
     font-weight: 300;
   }
 
@@ -499,6 +699,7 @@
     transition: opacity 0.2s;
     cursor: pointer;
     border: none;
+    margin-top: auto;
   }
 
   .price-btn.solid { background: var(--red); color: #fff; }
@@ -646,7 +847,7 @@
     display: none;
     position: fixed;
     top: 60px; left: 0; right: 0;
-    background: rgba(10,10,10,0.97);
+    background: var(--mobile-menu-bg);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
     padding: 24px;
@@ -745,6 +946,7 @@
     font-family: 'DM Sans', sans-serif;
   }
   .counter-avatar:first-child { margin-left: 0; }
+  [data-theme="light"] .counter-avatar { color: #EEEBE6; }
   .counter-dot { width: 5px; height: 5px; background: #2ECC71; border-radius: 50%; }
 
   /* TESTIMONIALS */
@@ -754,6 +956,41 @@
     gap: 16px;
     margin-top: 48px;
   }
+
+  .testimonials-ticker {
+    overflow: hidden;
+    white-space: nowrap;
+    margin-top: 48px;
+    position: relative;
+    mask-image: linear-gradient(90deg, transparent 0%, black 15%, black 85%, transparent 100%);
+  }
+
+  .testimonials-track {
+    display: inline-flex;
+    gap: 16px;
+    animation: scroll-ticker 30s linear infinite;
+  }
+
+  .testimonials-ticker:hover .testimonials-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes scroll-ticker {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .testimonials-track .testi-card {
+    flex-shrink: 0;
+    width: 380px;
+    max-width: 380px;
+    min-width: 280px;
+    white-space: normal;
+  }
   .testi-card {
     background: var(--bg-2);
     border: 1px solid var(--border-2);
@@ -762,6 +999,7 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    overflow: hidden;
   }
   .testi-stars {
     display: flex;
@@ -771,7 +1009,7 @@
   }
   .testi-quote {
     font-size: 14px;
-    color: #AAAAAA;
+    color: var(--muted);
     line-height: 1.65;
     font-weight: 300;
     flex: 1;
@@ -779,21 +1017,26 @@
   .testi-author {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
   }
   .testi-avatar {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: var(--muted-2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--white);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--white);
-    font-family: 'DM Sans', sans-serif;
     flex-shrink: 0;
+  }
+  .testi-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-grow: 1;
   }
   .testi-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
   .testi-handle { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
@@ -870,6 +1113,10 @@
     .cta-wrap { padding:70px 24px; }
     .screenshots-row { grid-template-columns:1fr 1fr; }
     .testimonials-grid { grid-template-columns:1fr; }
+    .phone-stage { display:none; }
+    .phone-nav-dots { display:none; }
+    .steps-grid { grid-template-columns:1fr; }
+    .step-connector { padding:4px 0; transform:rotate(90deg); }
   }
 
   @media (max-width:600px) {
@@ -1174,6 +1421,10 @@
     <li><a href="#faq">FAQ</a></li>
   </ul>
   <a href="#waitlist" class="nav-cta">Join waitlist</a>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  </button>
   <button class="hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -1191,6 +1442,9 @@
 
 <!-- HERO -->
 <div class="hero">
+  <div class="hero-logo-wrap">
+    <img src="assets/logo-mark.png" alt="Forge" class="hero-logo-mark">
+  </div>
   <div class="hero-pill">
     <div class="hero-dot"></div>
     Coming soon to iOS
@@ -1233,6 +1487,38 @@
   </div>
 
 <hr>
+
+<!-- HOW IT WORKS -->
+<section class="section reveal" id="how-it-works">
+  <div class="section-center">
+    <span class="mono-label">Getting started</span>
+    <h2 class="serif-title">Three steps to <em>unstoppable</em></h2>
+    <p class="body-desc">Build the system. Compete to stay on it. Let the gains compound.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <span class="step-num">01 — Track</span>
+      <h3 class="step-title">Build your habits</h3>
+      <p class="step-desc">Add habits with flexible schedules — daily, specific days, morning or evening. Log completions with a single tap and watch your streaks grow.</p>
+    </div>
+    <div class="step-connector">
+      <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </div>
+    <div class="step-card">
+      <span class="step-num">02 — Compete</span>
+      <h3 class="step-title">Battle friends</h3>
+      <p class="step-desc">Join weekly leagues and head-to-head battles. Score XP for every check-in, climb the division table, fight off relegation. Consistency wins.</p>
+    </div>
+    <div class="step-connector">
+      <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </div>
+    <div class="step-card">
+      <span class="step-num">03 — Level up</span>
+      <h3 class="step-title">Watch it compound</h3>
+      <p class="step-desc">Earn XP, extend your streaks, and grow your multipliers. The longer you stay consistent, the faster your stats climb.</p>
+    </div>
+  </div>
+</section>
 
 <!-- FEATURES -->
 <section class="section reveal" id="features">
@@ -1373,14 +1659,13 @@
       <div class="screenshot-label">Add habit</div>
     </div>
   </div>
-<hr>
 
 <!-- ACHIEVEMENTS -->
 <section class="section reveal" id="achievements">
   <div class="section-center">
     <span class="mono-label">Achievements</span>
     <h2 class="serif-title">Badges that <em>mean something.</em></h2>
-    <p class="body-desc">Forge achievements are illustrated badges that evolve as you hit milestones. Three tiers per category — each one harder to earn than the last. Earned through consistency, not purchased.</p>
+    <p class="body-desc">Forge achievements are illustrated badges that evolve as you hit milestones. Each category has multiple tiers — each one harder to earn than the last. Earned through consistency, not purchased. Ever.</p>
   </div>
 
   <div class="badges-showcase">
@@ -1415,8 +1700,7 @@
   </g>
 </svg>
       </div>
-      <div class="badge-name">Eternal</div>
-      <div class="badge-cat">Streak Series</div>
+      <div class="badge-cat">Streak</div>
     </div>
     <div class="badge-item badge-center">
       <div class="badge-svg-wrap">
@@ -1450,7 +1734,6 @@
   </g>
 </svg>
       </div>
-      <div class="badge-name">Nova</div>
       <div class="badge-cat">Perfect Days</div>
     </div>
     <div class="badge-item">
@@ -1482,21 +1765,20 @@
   </g>
 </svg>
       </div>
-      <div class="badge-name">Tempest</div>
-      <div class="badge-cat">Perfect Streaks</div>
+      <div class="badge-cat">Perfect Day Streak</div>
     </div>
   </div>
 
   <div class="achievements-grid">
     <div class="feat-cell">
       <div class="feat-icon"><i data-lucide="zap"></i></div>
-      <div class="feat-title">Streak series</div>
-      <div class="feat-desc">The Forge series tracks your day streak — from first spark to legendary blade. Each badge evolves visually as your streak grows.</div>
+      <div class="feat-title">Evolving badges</div>
+      <div class="feat-desc">Each badge series tells a visual story. The deeper your consistency, the more impressive the badge. Same category, completely different artwork as you climb.</div>
     </div>
     <div class="feat-cell">
       <div class="feat-icon"><i data-lucide="star"></i></div>
-      <div class="feat-title">Three categories</div>
-      <div class="feat-desc">Separate achievement tracks for streaks, perfect days, and total completions. Different paths, all rewarding consistency.</div>
+      <div class="feat-title">Multiple categories</div>
+      <div class="feat-desc">Streak badges. Perfect day badges. Total completion badges. Each one rewards a different dimension of your consistency — and more categories are coming.</div>
     </div>
     <div class="feat-cell">
       <div class="feat-icon"><i data-lucide="shield-check"></i></div>
@@ -1614,7 +1896,7 @@
           <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--red);">724 XP</div>
         </div>
         <div style="background:transparent; border:1px solid var(--border); border-radius:10px; padding:12px 14px; display:flex; align-items:center; gap:10px; opacity:0.5;">
-          <div style="width:28px;height:28px;background:#333;border-radius:50%;flex-shrink:0;"></div>
+          <div style="width:28px;height:28px;background:var(--muted-2);border-radius:50%;flex-shrink:0;"></div>
           <div style="flex:1;font-size:12px;color:var(--muted);">morning_grind</div>
           <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">412 XP</div>
         </div>
@@ -1631,7 +1913,8 @@
     <h2 class="serif-title">People are already <em>hooked.</em></h2>
     <p class="body-desc">A small group of beta testers have been using Forge since day one. Here's what they think.</p>
   </div>
-  <div class="testimonials-grid">
+  <div class="testimonials-ticker">
+    <div class="testimonials-track">
     <div class="testi-card">
       <div class="testi-stars">★★★★★</div>
       <p class="testi-quote">"I've tried every habit app out there. Forge is the first one I've actually stuck with past week two. The league system makes me genuinely not want to miss a day."</p>
@@ -1639,7 +1922,7 @@
         <div class="testi-avatar" style="background:#2A1A1A;color:#C8000A;">JM</div>
         <div>
           <div class="testi-name">Jamie M.</div>
-          <div class="testi-handle">Beta tester · Gold League</div>
+          <div class="testi-handle">Beta tester</div>
         </div>
       </div>
     </div>
@@ -1650,7 +1933,7 @@
         <div class="testi-avatar" style="background:#1A1A2A;color:#7B8CE8;">SR</div>
         <div>
           <div class="testi-name">Sam R.</div>
-          <div class="testi-handle">Beta tester · Silver League</div>
+          <div class="testi-handle">Beta tester</div>
         </div>
       </div>
     </div>
@@ -1661,10 +1944,111 @@
         <div class="testi-avatar" style="background:#1A2A1A;color:#2ECC71;">AL</div>
         <div>
           <div class="testi-name">Alex L.</div>
-          <div class="testi-handle">Beta tester · Bronze League</div>
+          <div class="testi-handle">Beta tester</div>
         </div>
       </div>
     </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"I've tried Streaks, Habitica, Done. Forge is the only one where I actually look forward to opening it. The design alone is worth it — everything else is a bonus."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:#6B46C1;color:#ffffff;">MK</div>
+        <div>
+          <div class="testi-name">Maya K.</div>
+          <div class="testi-handle">Beta tester</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"The weekly review changed how I think about my habits. Seeing which ones I nailed and which ones need work every Monday morning is genuinely useful. No other app does this."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:#3B82F6;color:#ffffff;">TB</div>
+        <div>
+          <div class="testi-name">Tom B.</div>
+          <div class="testi-handle">Beta tester</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"I was ready to pay immediately but the free tier is so generous I didn't need to. Ended up buying Pro anyway because I wanted to support it."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:#10B981;color:#ffffff;">PS</div>
+        <div>
+          <div class="testi-name">Priya S.</div>
+          <div class="testi-handle">Beta tester</div>
+        </div>
+      </div>
+    </div>
+    <!-- Duplicate testimonials for seamless loop -->
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"I've tried every habit app out there. Forge is the first one I've actually stuck with past week two. The league system makes me genuinely not want to miss a day."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:#2A1A1A;color:#C8000A;">JM</div>
+        <div>
+          <div class="testi-name">Jamie M.</div>
+          <div class="testi-handle">Beta tester</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"The friend battles are genius. My mate and I challenged each other to run every day for a month. We both made it — neither of us wanted to be the one who quit."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:#1A1A2A;color:#7B8CE8;">SR</div>
+        <div>
+          <div class="testi-name">Sam R.</div>
+          <div class="testi-handle">Beta tester</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"I've been sober for 94 days. Watching that counter go up every morning is more motivating than I expected. Simple feature, huge impact."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:#1A2A1A;color:#2ECC71;">AL</div>
+        <div>
+          <div class="testi-name">Alex L.</div>
+          <div class="testi-handle">Beta tester</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"I've tried Streaks, Habitica, Done. Forge is the only one where I actually look forward to opening it. The design alone is worth it — everything else is a bonus."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:#6B46C1;color:#ffffff;">MK</div>
+        <div>
+          <div class="testi-name">Maya K.</div>
+          <div class="testi-handle">Beta tester</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"The weekly review changed how I think about my habits. Seeing which ones I nailed and which ones need work every Monday morning is genuinely useful. No other app does this."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:#3B82F6;color:#ffffff;">TB</div>
+        <div>
+          <div class="testi-name">Tom B.</div>
+          <div class="testi-handle">Beta tester</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"I was ready to pay immediately but the free tier is so generous I didn't need to. Ended up buying Pro anyway because I wanted to support it."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:#10B981;color:#ffffff;">PS</div>
+        <div>
+          <div class="testi-name">Priya S.</div>
+          <div class="testi-handle">Beta tester</div>
+        </div>
+      </div>
+    </div>
+  </div>
   </div>
 </section>
 
@@ -1687,14 +2071,17 @@
       <ul class="price-features">
         <li><span class="ck">✓</span> 12 habits</li>
         <li><span class="ck">✓</span> 4 categories</li>
+        <li><span class="ck">✓</span> 3 archived habits</li>
+        <li><span class="ck">✓</span> 1 active goal</li>
         <li><span class="ck">✓</span> League system</li>
         <li><span class="ck">✓</span> Friend battles</li>
         <li><span class="ck">✓</span> 3 bot battles per month</li>
-        <li><span class="ck">✓</span> Week analytics</li>
-        <li><span class="ck">✓</span> Month + Year analytics</li>
-        <li><span class="ck">✓</span> Dark + Light themes</li>
-        <li><span class="ck">✓</span> Cloud backup + restore</li>
-        <li class="dim"><span class="ck">–</span> Coffee · Matcha · Black themes</li>
+        <li><span class="ck">✓</span> Week &amp; month analytics</li>
+        <li><span class="ck">✓</span> Dark + Light + Auto themes</li>
+        <li><span class="ck">✓</span> Default, earned &amp; seasonal app icons</li>
+        <li class="dim"><span class="ck">–</span> Year analytics</li>
+        <li class="dim"><span class="ck">–</span> Extra icons &amp; colours</li>
+        <li class="dim"><span class="ck">–</span> All themes &amp; app icons</li>
       </ul>
       <a href="#waitlist" class="price-btn outline">Join waitlist</a>
     </div>
@@ -1708,10 +2095,13 @@
         <li><span class="ck">✓</span> Everything in Free</li>
         <li><span class="ck">✓</span> Unlimited habits</li>
         <li><span class="ck">✓</span> Unlimited categories</li>
+        <li><span class="ck">✓</span> Unlimited archived habits</li>
+        <li><span class="ck">✓</span> Unlimited goals, any duration</li>
         <li><span class="ck">✓</span> Unlimited bot battles</li>
-        <li><span class="ck">✓</span> All themes incl. Coffee + Matcha</li>
-        <li><span class="ck">✓</span> Extra icons + colours</li>
-        <li><span class="ck">✓</span> Extended goal durations</li>
+        <li><span class="ck">✓</span> Year analytics</li>
+        <li><span class="ck">✓</span> All themes</li>
+        <li><span class="ck">✓</span> Extra icons &amp; colours</li>
+        <li><span class="ck">✓</span> All app icons</li>
         <li><span class="ck">✓</span> Priority support</li>
       </ul>
       <a href="#waitlist" class="price-btn outline">Join waitlist</a>
@@ -1722,16 +2112,19 @@
       <div class="price-tier" style="color:#C84040;">Pro Lifetime</div>
       <div class="price-amount" style="color:var(--red);">€14.99</div>
       <div class="price-note">One time · no subscription ever</div>
-      <div class="price-save-note">Save €33 vs monthly</div>
-      <hr class="price-divider" style="border-color:#2A0000;margin-top:14px;">
+      <div class="price-save-note">Save €33+ in your first year</div>
+      <hr class="price-divider price-divider-featured" style="margin-top:14px;">
       <ul class="price-features">
         <li><span class="ck">✓</span> Everything in Free</li>
         <li><span class="ck">✓</span> Unlimited habits</li>
         <li><span class="ck">✓</span> Unlimited categories</li>
+        <li><span class="ck">✓</span> Unlimited archived habits</li>
+        <li><span class="ck">✓</span> Unlimited goals, any duration</li>
         <li><span class="ck">✓</span> Unlimited bot battles</li>
-        <li><span class="ck">✓</span> All themes incl. Coffee + Matcha</li>
-        <li><span class="ck">✓</span> Extra icons + colours</li>
-        <li><span class="ck">✓</span> Extended goal durations</li>
+        <li><span class="ck">✓</span> Year analytics</li>
+        <li><span class="ck">✓</span> All themes</li>
+        <li><span class="ck">✓</span> Extra icons &amp; colours</li>
+        <li><span class="ck">✓</span> All app icons</li>
         <li><span class="ck">✓</span> Priority support</li>
       </ul>
       <a href="#waitlist" class="price-btn solid">Join waitlist</a>
@@ -1754,7 +2147,7 @@
         Is Forge really free?
         <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="faq-a">Yes. The free tier gives you 12 habits, 4 categories, full league access, friend battles, and weekly analytics — no card required, no trial period. Forge Pro is a one-time purchase for power users who want unlimited everything.</div>
+      <div class="faq-a">Yes. The free tier gives you 12 habits, 4 categories, full league access, friend battles, 3 bot battles per month, and week &amp; month analytics — no card required, no trial period. Forge Pro unlocks unlimited everything, including year analytics, for power users.</div>
     </div>
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">
@@ -1782,14 +2175,14 @@
         How does the league system work?
         <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="faq-a">Every Monday you're placed in a group of 10 users at your league level. Earn XP throughout the week by completing habits, hitting perfect days, and maintaining streaks. Top 3 at the end of the week get promoted. Bottom 3 get relegated. Six leagues: Bronze, Silver, Gold, Platinum, Diamond, Ruby.</div>
+      <div class="faq-a">Every Monday your league resets. Earn XP throughout the week by completing habits, hitting perfect days, and maintaining streaks. Top performers get promoted, bottom performers get relegated — group sizes and promotion numbers vary by tier, getting more competitive as you climb. Six tiers from Bronze to Ruby: Bronze, Silver, Gold, Platinum, Emerald, Ruby.</div>
     </div>
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">
         Does Forge Pro have a subscription?
         <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="faq-a">No. Forge Pro is a single one-time purchase. Pay once, own it forever. No monthly fees, no annual renewals, no features locked behind an ongoing subscription.</div>
+      <div class="faq-a">Forge Pro comes in two options — monthly at €3.99/month if you want flexibility, or lifetime at €14.99 as a one-time payment. No forced renewals, no tricks. Lifetime is better value if you plan to stick around.</div>
     </div>
   </div>
 </section>
@@ -1810,11 +2203,10 @@
     <div class="counter-dot"></div>
     <span id="counterText">1,247 people already signed up</span>
   </div>
-  <form class="waitlist-row" onsubmit="handleSubmit(event)">
-    <input type="email" class="waitlist-input" placeholder="your@email.com" required>
-    <button type="submit" class="btn-red">Notify me</button>
-  </form>
-  <p class="waitlist-note">No spam. Just a launch notification.</p>
+  <div class="tally-wrap">
+    <iframe data-tally-src="https://tally.so/embed/zxWpda?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="585" frameborder="0" marginheight="0" marginwidth="0" title="Join the Forge Waitlist"></iframe>
+  </div>
+  <script>var d=document,w="https://tally.so/widgets/embed.js",v=function(){"undefined"!=typeof Tally?Tally.loadEmbeds():d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach((function(e){e.src=e.dataset.tallySrc}))};if("undefined"!=typeof Tally)v();else if(d.querySelector('script[src="'+w+'"]')==null){var s=d.createElement("script");s.src=w,s.onload=v,s.onerror=v,d.body.appendChild(s);}</script>
 </div>
 
 <!-- FOOTER -->
@@ -1825,15 +2217,15 @@
   </div>
   <div class="footer-social">
     <a href="https://www.tiktok.com/@forgehabits" target="_blank" rel="noopener" class="social-btn tiktok" aria-label="TikTok"><svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></a>
-    <a href="#" class="social-btn instagram" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg></a>
-    <a href="#" class="social-btn youtube" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
-    <a href="#" class="social-btn reddit" aria-label="Reddit"><svg viewBox="0 0 24 24"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg></a>
+    <a href="https://www.youtube.com/@forgehabits-app" target="_blank" rel="noopener" class="social-btn youtube" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+    <a href="https://www.reddit.com/user/forgehabits/" target="_blank" rel="noopener" class="social-btn reddit" aria-label="Reddit"><svg viewBox="0 0 24 24"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg></a>
   </div>
   <div class="footer-links">
     <a href="privacy.html">Privacy Policy</a>
-    <a href="mailto:forgehabits@protonmail.com">Support</a>
+    <a href="tos.html">Terms of Service</a>
+    <a href="support.html">Support</a>
   </div>
-  <div class="footer-copy">© 2026 Forge. Coming soon to iOS.</div>
+  <div class="footer-copy">© 2026 FORGE: Habits. All rights reserved.</div>
 </footer>
 
 <script>
@@ -1917,7 +2309,23 @@
     }
   }
 
-  // Active nav highlight + scroll progress + nav shrink
+  // Theme toggle
+  const themeToggle = document.getElementById('themeToggle');
+  themeToggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('forge-theme', next);
+  });
+
+  // Listen for system preference changes (only when user hasn't manually set a theme)
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+    if (!localStorage.getItem('forge-theme')) {
+      document.documentElement.setAttribute('data-theme', e.matches ? 'light' : 'dark');
+    }
+  });
+
+  // Active nav highlight + scroll progress + nav shrink + nav blur + hr animations
   const progressBar = document.createElement('div');
   progressBar.id = 'progress-bar';
   document.body.prepend(progressBar);
@@ -1941,6 +2349,16 @@
     });
     navLinks.forEach(a => {
       a.style.color = a.getAttribute('href') === '#' + current ? 'var(--white)' : '';
+    });
+
+    // HR animations on scroll
+    document.querySelectorAll('hr').forEach((hr, index) => {
+      const rect = hr.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      if (isVisible && !hr.classList.contains('animated')) {
+        hr.classList.add('animated');
+        hr.style.animationDelay = (index * 0.1) + 's';
+      }
     });
   });
 
@@ -1971,20 +2389,7 @@
     });
   });
 
-  // Card tilt on hover
-  document.querySelectorAll('.feat-cell, .testi-card, .price-card').forEach(card => {
-    card.classList.add('tiltable');
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      card.style.transform = `perspective(600px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) scale(1.015)`;
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = '';
-    });
-  });
-
+  
   // Count-up animation for waitlist counter
   function countUp(el, target, duration) {
     let start = 0;
